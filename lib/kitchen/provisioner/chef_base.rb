@@ -351,14 +351,22 @@ module Kitchen
       #   to the kitchen root
       # @api private
       def cookbooks_dir
-        config[:cookbooks_path]
+        if config[:cookbooks_path]
+          File.expand_path(config[:cookbooks_path])
+        else
+          File.join(config[:kitchen_root], "cookbooks")
+        end
       end
 
       # @return [String] an absolute path to a site-cookbooks/ directory,
       #   relative to the kitchen root
       # @api private
       def site_cookbooks_dir
-        config[:site_cookbooks_path]
+        if config[:site_cookbooks_path]
+          File.expand_path(config[:site_cookbooks_path])
+        else
+          File.join(config[:kitchen_root], "site-cookbooks")
+        end
       end
 
       # @return [String] an absolute path to a cookbooks/ directory in the
