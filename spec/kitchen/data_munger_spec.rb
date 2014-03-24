@@ -1443,7 +1443,8 @@ module Kitchen
 
       LEGACY_CHEF_PATHS = [
         :data_path, :data_bags_path, :environments_path,
-        :nodes_path, :roles_path, :encrypted_data_bag_secret_key_path
+        :nodes_path, :roles_path, :encrypted_data_bag_secret_key_path,
+        :cookbooks_path, :site_cookbooks_path
       ]
 
       LEGACY_CHEF_PATHS.each do |key|
