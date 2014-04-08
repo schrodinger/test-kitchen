@@ -116,7 +116,7 @@ module Kitchen
         Errno::ECONNRESET, Errno::ENETUNREACH, Errno::EHOSTUNREACH,
         Net::SSH::Disconnect
       ]
-      retries = 3
+      retries = 10
 
       begin
         logger.debug("[SSH] opening connection to #{self}")
@@ -124,6 +124,7 @@ module Kitchen
       rescue *rescue_exceptions => e
         if (retries -= 1) > 0
           logger.info("[SSH] connection failed, retrying (#{e.inspect})")
+          sleep 2
           retry
         else
           logger.warn("[SSH] connection failed, terminating (#{e.inspect})")
