@@ -86,7 +86,7 @@ describe Kitchen::Diagnostic do
         "driver" => {
           "driva" => { "a" => "b" },
         },
-        "provisioner" => {
+        "provisioners" => {
           "prov" => { "c" => "d" },
           "presto" => { "i" => "j" },
         },

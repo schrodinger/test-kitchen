@@ -133,6 +133,13 @@ module Kitchen
 
     private
 
+    def each_step(suite_name)
+      name, step = * suite_name.split(/_step_/)
+      (1..step.to_i).map do |count|
+        yield suites.find { |suite| suite.name == "#{name}_step_#{count}" }
+      end
+    end
+
     # Builds the filtered list of Instance objects.
     #
     # @return [Array<Instance] an array of Instances
@@ -276,8 +283,26 @@ module Kitchen
       )
     end
 
-    # Builds a newly configured Provisioner object, for a given Suite and
-    # Platform.
+    # Builds an array of newly configured Provisioner objects,
+    # for a given Suite and Platform.
+    #
+    # @param suite [Suite,#name] a Suite
+    # @param platform [Platform,#name] a Platform
+    # @return Array[Provisioner] a new Provisioner object
+    # @api private
+    def new_provisioners(suite, platform)
+      # check if suite name otherwise is a suite step
+      if data.steps?(suite.name)
+        each_step(suite.name) do |step|
+          new_provisioner(step, platform)
+        end
+      else
+        [new_provisioner(suite, platform)]
+      end
+    end
+
+    # Builds a newly configured Provisioner object, for a given Suite
+    # and Platform.
     #
     # @param suite [Suite,#name] a Suite
     # @param platform [Platform,#name] a Platform

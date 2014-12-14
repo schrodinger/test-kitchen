@@ -59,7 +59,7 @@ module Kitchen
     # @return [Provisioner::Base] provisioner object which will the setup
     #   and invocation instructions for configuration management and other
     #   automation tools
-    attr_reader :provisioner
+    attr_reader :provisioners
 
     # @return [Transport::Base] transport object which will communicate with
     #   an instance.
@@ -78,7 +78,7 @@ module Kitchen
     # @option options [Suite] :suite the suite (**Required**)
     # @option options [Platform] :platform the platform (**Required**)
     # @option options [Driver::Base] :driver the driver (**Required**)
-    # @option options [Provisioner::Base] :provisioner the provisioner
+    # @option options Array[Provisioner::Base] :provisioners the provisioners
     # @option options [Transport::Base] :transport the transport
     #   (**Required**)
     # @option options [Verifier] :verifier the verifier logger (**Required**)
@@ -94,14 +94,14 @@ module Kitchen
       @platform     = options.fetch(:platform)
       @name         = self.class.name_for(@suite, @platform)
       @driver       = options.fetch(:driver)
-      @provisioner  = options.fetch(:provisioner)
+      @provisioners = options.fetch(:provisioners)
       @transport    = options.fetch(:transport)
       @verifier     = options.fetch(:verifier)
       @logger       = options.fetch(:logger) { Kitchen.logger }
       @state_file   = options.fetch(:state_file)
 
       setup_driver
-      setup_provisioner
+      setup_provisioners
       setup_transport
       setup_verifier
     end
@@ -239,10 +239,18 @@ module Kitchen
     def diagnose
       result = {}
       [
-        :platform, :state_file, :driver, :provisioner, :transport, :verifier
+        :platform, :state_file, :driver, :transport, :verifier
       ].each do |sym|
         obj = send(sym)
         result[sym] = obj.respond_to?(:diagnose) ? obj.diagnose : :unknown
+      end
+      result[:provisioners] = provisioners.inject([]) do |rslts, obj|
+        if obj.respond_to?(:diagnose)
+          rslts << obj.send(:diagnose)
+        else
+          rslts << :unknown
+        end
+        rslts
       end
       result
     end
@@ -260,6 +268,14 @@ module Kitchen
                       else
                         :unknown
                       end
+      end
+      result[:provisioners] = provisioners.inject([]) do |results, obj|
+        if obj.respond_to?(:diagnose_plugin)
+          results << obj.send(:diagnose_plugin)
+        else
+          results << :unknown
+        end
+        results
       end
       result
     end
@@ -300,7 +316,7 @@ module Kitchen
     # @api private
     def validate_options(options)
       [
-        :suite, :platform, :driver, :provisioner,
+        :suite, :platform, :driver, :provisioners,
         :transport, :verifier, :state_file
       ].each do |k|
         next if options.key?(k)
@@ -324,12 +340,14 @@ module Kitchen
       end
     end
 
-    # Perform any final configuration or preparation needed for the provisioner
-    # object carry out its duties.
+    # Perform any final configuration or preparation needed for the provisioners
+    # objects to carry out their duties.
     #
     # @api private
-    def setup_provisioner
-      @provisioner.finalize_config!(self)
+    def setup_provisioners
+      @provisioners.each do |provisioner|
+        provisioner.finalize_config!(self)
+      end
     end
 
     # Perform any final configuration or preparation needed for the transport
@@ -381,7 +399,9 @@ module Kitchen
         if legacy_ssh_base_driver?
           legacy_ssh_base_converge(state)
         else
-          provisioner.call(state)
+          provisioners.each do |provisioner|
+            provisioner.call(state)
+          end
         end
       end
       info("Finished converging #{to_str} #{Util.duration(elapsed.real)}.")

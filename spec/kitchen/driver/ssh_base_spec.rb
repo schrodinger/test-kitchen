@@ -270,7 +270,7 @@ describe Kitchen::Driver::SSHBase do
 
   describe "#converge" do
     let(:cmd)         { driver.converge(state) }
-    let(:connection)  { stub(execute: true, upload: true) }
+    let(:connection)  { stub(execute: true, upload: true, wait: true) }
 
     before do
       state[:hostname] = "fizzy"
