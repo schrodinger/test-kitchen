@@ -33,7 +33,7 @@ describe Kitchen::Diagnostic do
         :diagnose => { :stuff => "sup" },
         :diagnose_plugins => {
           :driver => { :name => "driva", :a => "b" },
-          :provisioner => { :name => "prov", :c => "d" },
+          :provisioners => { :name => "prov", :c => "d" },
           :transport => { :name => "transa", :e => "f" },
           :verifier => { :name => "verve", :g => "h" }
         }
@@ -43,7 +43,7 @@ describe Kitchen::Diagnostic do
         :diagnose => { :stuff => "yo" },
         :diagnose_plugins => {
           :driver => { :name => "driva", :a => "b" },
-          :provisioner => { :name => "presto", :i => "j" },
+          :provisioners => { :name => "presto", :i => "j" },
           :transport => { :name => "tressa", :k => "l" },
           :verifier => { :name => "verve", :g => "h" }
         }
@@ -87,7 +87,7 @@ describe Kitchen::Diagnostic do
         "driver" => {
           "driva" => { "a" => "b" }
         },
-        "provisioner" => {
+        "provisioners" => {
           "prov" => { "c" => "d" },
           "presto" => { "i" => "j" }
         },

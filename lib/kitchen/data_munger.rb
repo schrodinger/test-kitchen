@@ -91,7 +91,21 @@ module Kitchen
     #
     # @return [Array<Hash>] an Array of Hashes
     def suite_data
-      data.fetch(:suites, [])
+      @suite_data ||= data.fetch(:suites, []).inject([]) do |suites, suite|
+        if suite[:steps]
+          suite[:steps].each_with_index do |sub_suite, index|
+            sub_suite[:name] = "#{suite[:name]}_step_#{index + 1}"
+            suites << sub_suite
+          end
+        else
+          suites << suite
+        end
+        suites
+      end
+    end
+
+    def steps?(suite_name)
+      !data.fetch(:suites, []).find { |suite| suite[:name] == suite_name }
     end
 
     # Generate a new Hash of configuration data that can be used to construct
@@ -676,7 +690,7 @@ module Kitchen
     #
     # @api private
     def move_chef_data_to_provisioner!
-      data.fetch(:suites, []).each do |suite|
+      suite_data.each do |suite|
         move_chef_data_to_provisioner_at!(suite, :attributes)
         move_chef_data_to_provisioner_at!(suite, :run_list)
       end
@@ -952,7 +966,7 @@ module Kitchen
     #   Hash if not found
     # @api private
     def suite_data_for(name)
-      data.fetch(:suites, Hash.new).find(-> { Hash.new }) do |suite|
+      suite_data.find(-> { Hash.new }) do |suite|
         suite.fetch(:name, nil) == name
       end
     end

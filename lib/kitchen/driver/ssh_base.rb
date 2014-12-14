@@ -67,24 +67,17 @@ module Kitchen
       end
 
       # (see Base#converge)
-      def converge(state) # rubocop:disable Metrics/AbcSize
-        provisioner = instance.provisioner
-        provisioner.create_sandbox
-        sandbox_dirs = Dir.glob("#{provisioner.sandbox_path}/*")
-
-        instance.transport.connection(backcompat_merged_state(state)) do |conn|
-          conn.execute(env_cmd(provisioner.install_command))
-          conn.execute(env_cmd(provisioner.init_command))
-          info("Transferring files to #{instance.to_str}")
-          conn.upload(sandbox_dirs, provisioner[:root_path])
-          debug("Transfer complete")
-          conn.execute(env_cmd(provisioner.prepare_command))
-          conn.execute(env_cmd(provisioner.run_command))
+      def converge(state)
+        # allow multiple provisioning runs
+        step = 1
+        instance.provisioners.each do |provisioner|
+          begin
+            run_step(state, provisioner, step)
+          ensure
+            provisioner && provisioner.cleanup_sandbox
+          end
+          step += 1
         end
-      rescue Kitchen::Transport::TransportFailed => ex
-        raise ActionFailed, ex.message
-      ensure
-        instance.provisioner.cleanup_sandbox
       end
 
       # (see Base#setup)
@@ -204,6 +197,24 @@ module Kitchen
       end
 
       private
+
+      def run_step(state, provisioner, step)
+        info("Running Step #{step}")
+        provisioner.create_sandbox
+        sandbox_dirs = Dir.glob("#{provisioner.sandbox_path}/*")
+
+        instance.transport.connection(backcompat_merged_state(state)) do |conn|
+          conn.execute(env_cmd(provisioner.install_command))
+          conn.execute(env_cmd(provisioner.init_command))
+          info("Transferring files to #{instance.to_str}")
+          conn.upload(sandbox_dirs, provisioner[:root_path])
+          debug("Transfer complete")
+          conn.execute(env_cmd(provisioner.prepare_command))
+          conn.execute(env_cmd(provisioner.run_command))
+        end
+      rescue Kitchen::Transport::TransportFailed => ex
+        raise ActionFailed, ex.message
+      end
 
       def backcompat_merged_state(state)
         driver_ssh_keys = %w[

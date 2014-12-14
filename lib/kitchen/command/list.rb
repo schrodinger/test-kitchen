@@ -61,7 +61,7 @@ module Kitchen
         [
           color_pad(instance.name),
           color_pad(instance.driver.name),
-          color_pad(instance.provisioner.name),
+          color_pad(instance.provisioners.map(&:name).join(',')),
           color_pad(instance.verifier.name),
           color_pad(instance.transport.name),
           format_last_action(instance.last_action)

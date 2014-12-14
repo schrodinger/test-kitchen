@@ -103,7 +103,7 @@ module Kitchen
         result[:plugins] = Hash.new
       else
         plugins = {
-          :driver => [], :provisioner => [], :transport => [], :verifier => []
+          :driver => [], :provisioners => [], :transport => [], :verifier => []
         }
         instances.map(&:diagnose_plugins).each do |plugin_hash|
           plugin_hash.each { |type, plugin| plugins[type] << plugin }
