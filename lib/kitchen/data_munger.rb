@@ -278,7 +278,7 @@ module Kitchen
       data.fetch(:suites, []).each do |suite|
         %w[
           data data_bags encrypted_data_bag_secret_key
-          environments nodes roles
+          environments nodes roles cookbooks site_cookbooks
         ].each do |key|
           move_chef_data_to_provisioner_at!(suite, "#{key}_path".to_sym)
         end

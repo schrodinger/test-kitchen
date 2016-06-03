@@ -94,6 +94,16 @@ module Kitchen
       end
       expand_path_for :encrypted_data_bag_secret_key_path
 
+      default_config :cookbooks_path do |provisioner|
+        provisioner.calculate_path("cookbooks")
+      end
+      expand_path_for :cookbooks_path
+
+      default_config :site_cookbooks_path do |provisioner|
+        provisioner.calculate_path("site-cookbooks")
+      end
+      expand_path_for :site_cookbooks_path
+
       # (see Base#create_sandbox)
       def create_sandbox
         super
