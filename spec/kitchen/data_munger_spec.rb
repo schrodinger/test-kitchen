@@ -1862,7 +1862,8 @@ module Kitchen # rubocop:disable Metrics/ModuleLength
     describe "legacy chef paths from suite" do
       LEGACY_CHEF_PATHS = [
         :data_path, :data_bags_path, :environments_path,
-        :nodes_path, :roles_path, :encrypted_data_bag_secret_key_path
+        :nodes_path, :roles_path, :encrypted_data_bag_secret_key_path,
+        :cookbooks_path, :site_cookbooks_path
       ].freeze
 
       LEGACY_CHEF_PATHS.each do |key|

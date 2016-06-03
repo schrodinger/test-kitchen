@@ -102,6 +102,16 @@ module Kitchen
       end
       expand_path_for :encrypted_data_bag_secret_key_path
 
+      default_config :cookbooks_path do |provisioner|
+        provisioner.calculate_path("cookbooks")
+      end
+      expand_path_for :cookbooks_path
+
+      default_config :site_cookbooks_path do |provisioner|
+        provisioner.calculate_path("site-cookbooks")
+      end
+      expand_path_for :site_cookbooks_path
+
       # Reads the local Chef::Config object (if present).  We do this because
       # we want to start bring Chef config and ChefDK tool config closer
       # together.  For example, we want to configure proxy settings in 1
