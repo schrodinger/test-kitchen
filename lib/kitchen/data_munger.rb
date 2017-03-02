@@ -715,6 +715,7 @@ module Kitchen
         pdata = { name: pdata } if pdata.is_a?(String)
         unless root.fetch(key, nil).nil?
           root[:provisioner] = pdata.rmerge(key => root.delete(key))
+          root[:provisioner]
         end
       end
     end
@@ -966,7 +967,7 @@ module Kitchen
     #   Hash if not found
     # @api private
     def suite_data_for(name)
-      data.fetch(:suites, {}).find(-> { Hash.new }) do |suite|
+      suite_data.find(-> { Hash.new }) do |suite|
         suite.fetch(:name, nil) == name
       end
     end

@@ -254,7 +254,7 @@ module Kitchen
         logger: new_instance_logger(suite, platform, index),
         suite: suite,
         platform: platform,
-        provisioner: new_provisioner(suite, platform),
+        provisioners: new_provisioners(suite, platform),
         transport: new_transport(suite, platform),
         verifier: new_verifier(suite, platform),
         state_file: new_state_file(suite, platform)
